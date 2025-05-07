@@ -7,3 +7,7 @@ type User struct {
 	Email    string `gorm:"uniqueIndex;type:varchar(128) not null"`
 	PassWord string `gorm:"type:varchar(64) not null"`
 }
+
+func (User) TableName() string {
+	return "user"
+}
