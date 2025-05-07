@@ -16,5 +16,5 @@ func NewEchoService(ctx context.Context) *EchoService {
 func (s *EchoService) Run(req *pbapi.Request) (resp *pbapi.Response, err error) {
 	// Finish your business logic.
 
-	return
+	return &pbapi.Response {Message: req.Message}, nil
 }
