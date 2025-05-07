@@ -37,5 +37,5 @@ demo-proto-server-boot-start:
 	    MYSQL_PASSWORD=123 \
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=10123 \
-	    MYSQL_DATABASE=recordings \
+	    MYSQL_DATABASE=demo_proto \
 	go run .
