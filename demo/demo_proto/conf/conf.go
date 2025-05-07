@@ -54,12 +54,25 @@ type Registry struct {
 
 // GetConf gets configuration instance
 func GetConf() *Config {
-	once.Do(initConf)
+	prefix := "conf"
+	// once.Do(initConf)
+	once.Do(func() {
+		initConf(prefix)
+	})
 	return conf
 }
 
-func initConf() {
-	prefix := "conf"
+// 指定conf文件夹所在的根目录
+func GetConfWithPath(prefix string) *Config {
+	// once.Do(initConf(prefix))
+	once.Do(func() {
+		initConf(prefix)
+	})
+	return conf
+}
+
+func initConf(prefix string) {
+	// prefix := "conf"
 	confFileRelPath := filepath.Join(prefix, filepath.Join(GetEnv(), "conf.yaml"))
 	content, err := ioutil.ReadFile(confFileRelPath)
 	if err != nil {
