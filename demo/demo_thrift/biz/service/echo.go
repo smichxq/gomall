@@ -16,5 +16,5 @@ func NewEchoService(ctx context.Context) *EchoService {
 func (s *EchoService) Run(req *api.Request) (resp *api.Response, err error) {
 	// Finish your business logic.
 
-	return
+	return &api.Response {Message: req.Message}, nil
 }
