@@ -24,3 +24,18 @@ gen-demo-thrift:
 	@echo "add workspace"
 	@cd demo/demo_thrift && go work use .
 	@echo "add workspace success"
+
+# 简化从环境变量加载MySQL配置
+# 仅用于开发
+# 测试环境使用docker或其他安全的方式
+# 环境变量是临时的且仅用于启动命令
+.PHONY: demo-proto-server-boot-start
+demo-proto-server-boot-start:
+	@echo "Load MySQL config from env"
+	@cd demo/demo_proto && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=10123 \
+	    MYSQL_DATABASE=recordings \
+	go run .

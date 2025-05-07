@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/biz/dal"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/conf"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/kitex_gen/pbapi/echoservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -33,6 +34,9 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+
+	// 加载外部配置
+	dal.Init()
 
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
