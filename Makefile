@@ -39,3 +39,17 @@ demo-proto-server-boot-start:
 	    MYSQL_PORT=10123 \
 	    MYSQL_DATABASE=demo_proto \
 	go run .
+
+
+# 数据填充CRUD
+.PHONY: demo-proto-db-record-generate
+demo-proto-db-record-generate:
+	@echo "MySQL record generate"
+	@cd demo/demo_proto/cmd/dbop && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=10123 \
+	    MYSQL_DATABASE=demo_proto \
+	go run .
+
