@@ -4,37 +4,38 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/kitex_gen/pbapi"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/kitex_gen/pbapi/echoservice"
 	"github.com/cloudwego/kitex/client"
-	consul "github.com/kitex-contrib/registry-consul"
+	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"github.com/cloudwego/kitex/pkg/transmeta"
 )
 
 func main() {
 	// build a consul resolver with the consul client
-	r, err := consul.NewConsulResolver("192.168.3.6:8500")
+	// r, err := consul.NewConsulResolver("192.168.3.6:8500")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
+	// cli, err := echoservice.NewClient("demo_proto", client.WithResolver(r))
+	cli, err := echoservice.NewClient(
+		"demo_proto",
+		client.WithHostPorts("localhost:8888"),
+		client.WithMetaHandler(transmeta.ClientTTHeaderHandler),
+		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{
+			ServiceName: "demo_proto_client",
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	c, err := echoservice.NewClient("demo_proto", client.WithResolver(r))
+	res, err := cli.Echo(context.TODO(), &pbapi.Request{Message: "hello"})
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
-	for {
-		res, err := c.Echo(context.TODO(), &pbapi.Request{Message: "hello"})
-		if err != nil {
-			// log.Fatal(err)
-			continue
-		}
-
-		fmt.Println(res)
-
-		time.Sleep(time.Duration(time.Second))
-	}
-
+	fmt.Println(res)
 }

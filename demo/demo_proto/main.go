@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/biz/dal"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/conf"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/kitex_gen/pbapi/echoservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -34,9 +33,8 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
-
 	// 加载外部配置
-	dal.Init()
+	// dal.Init()
 
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
@@ -59,7 +57,6 @@ func kitexInit() (opts []server.Option) {
 		DeregisterCriticalServiceAfter: "1m",
 	}))
 	// r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0])
-
 	if err != nil {
 		log.Fatal("NewConsulRegister", err)
 		return
