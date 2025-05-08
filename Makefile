@@ -53,3 +53,12 @@ demo-proto-db-record-generate:
 	    MYSQL_DATABASE=demo_proto \
 	go run .
 
+# 根据IDL生成Http项目
+# cwgo命令解析
+# --idl 指定参考的proto
+# --service 服务名称
+# -module 指定服务module名称(与目录一致)
+# -I 指定参考的proto的依赖文件的文件夹
+.PYTHON: app-http-generate
+app-http-generate:
+	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/home.proto --service frontend -module github.com/cloudwego/biz-demo/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
