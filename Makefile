@@ -59,6 +59,6 @@ demo-proto-db-record-generate:
 # --service 服务名称
 # -module 指定服务module名称(与目录一致)
 # -I 指定参考的proto的依赖文件的文件夹
-.PYTHON: app-http-generate
-app-http-generate:
+.PYTHON: gen-frontend
+gen-frontend:
 	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/home.proto --service frontend -module github.com/cloudwego/biz-demo/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
