@@ -9,6 +9,7 @@ import (
 	"github.com/bytedance/gopkg/cloud/metainfo"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/kitex_gen/pbapi"
 	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/kitex_gen/pbapi/echoservice"
+	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/middleware"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/kerrors"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -31,6 +32,7 @@ func main() {
 		client.WithHostPorts("localhost:8888"),
 		client.WithTransportProtocol(transport.GRPC),
 		client.WithMetaHandler(transmeta.ClientHTTP2Handler),
+		client.WithMiddleware(middleware.Middleware),
 	)
 	if err != nil {
 		klog.Fatal(err)
