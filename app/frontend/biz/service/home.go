@@ -37,6 +37,4 @@ func (h *HomeService) Run(req *home.Empty) (map[string]any, error) {
 	resp["Title"] = "Hot Sales"
 	resp["Items"] = items
 	return resp, nil
-
-	return resp, nil
 }
