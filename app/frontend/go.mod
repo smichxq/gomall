@@ -1,4 +1,4 @@
-module github.com/cloudwego/biz-demo/gomall/app/frontend
+module github.com/cloudwego/gomall/app/frontend
 
 go 1.24.2
 

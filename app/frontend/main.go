@@ -6,8 +6,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/cloudwego/biz-demo/gomall/app/frontend/biz/router"
-	"github.com/cloudwego/biz-demo/gomall/app/frontend/conf"
+	"github.com/cloudwego/gomall/app/frontend/biz/router"
+	"github.com/cloudwego/gomall/app/frontend/conf"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -38,10 +38,7 @@ func main() {
 
 	router.GeneratedRegister(h)
 
-	// 指定模板文件目录
 	h.LoadHTMLGlob("template/*")
-	// 指定static查找路径为当前目录下的/static
-	// 获得访问文件的能力
 	h.Static("/static", "./")
 
 	h.Spin()
