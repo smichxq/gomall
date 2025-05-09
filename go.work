@@ -4,4 +4,5 @@ use (
 	./app/frontend
 	./demo/demo_proto
 	./demo/demo_thrift
+	./rpc_gen
 )
