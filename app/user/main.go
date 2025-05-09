@@ -1,15 +1,18 @@
 package main
 
 import (
+	"log"
 	"net"
 	"time"
 
+	"github.com/cloudwego/gomall/app/user/conf"
+	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	consulapi "github.com/hashicorp/consul/api"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	"github.com/cloudwego/gomall/app/user/conf"
-	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/user/userservice"
+	consul "github.com/kitex-contrib/registry-consul"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -37,6 +40,23 @@ func kitexInit() (opts []server.Option) {
 	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
+
+	// build a consul register with the consul client
+	// 读取配置文件中的注册中心地址(单节点)
+	r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0], consul.WithCheck(&consulapi.AgentServiceCheck{
+		HTTP:                           "http://192.168.3.6:8899/health",
+		Interval:                       "1s",
+		Timeout:                        "1s",
+		DeregisterCriticalServiceAfter: "1m",
+	}))
+	// r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0])
+	if err != nil {
+		log.Fatal("NewConsulRegister", err)
+		return
+	}
+
+	// 组件注册到服务
+	opts = append(opts, server.WithRegistry(r))
 
 	// klog
 	logger := kitexlogrus.NewLogger()
