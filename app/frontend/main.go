@@ -62,6 +62,10 @@ func main() {
 		ctx.HTML(consts.StatusOK, "sign-up", data)
 	})
 
+	h.GET("/about", middleware.Auth(), func(c context.Context, ctx *app.RequestContext) {
+		ctx.HTML(consts.StatusOK, "about", utils.H{"Title": "About"})
+	})
+
 	h.Spin()
 }
 
