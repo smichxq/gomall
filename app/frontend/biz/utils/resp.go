@@ -3,8 +3,8 @@ package utils
 import (
 	"context"
 
+	"github.com/cloudwego/gomall/app/frontend/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/hertz-contrib/sessions"
 )
 
 // SendErrResponse  pack error response
@@ -21,9 +21,8 @@ func SendSuccessResponse(ctx context.Context, c *app.RequestContext, code int, d
 
 // 提取user_id
 func WarpResponse(ctx context.Context, c *app.RequestContext, content map[string]any) map[string]any {
-	session := sessions.Default(c)
-
-	userId := session.Get("user_id")
+	// 从中间件中获取userId
+	userId := ctx.Value(middleware.SessionUserId)
 
 	content["user_id"] = userId
 
