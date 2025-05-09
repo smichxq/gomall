@@ -33,7 +33,7 @@ func Auth() app.HandlerFunc {
 
 		userId := s.Get("user_id")
 		if userId == nil {
-			c.Redirect(302, []byte("/sign-in"))
+			c.Redirect(302, []byte("/sign-in?next="+c.FullPath()))
 			// 终止后续中间件handler的调用
 			c.Abort()
 			return
