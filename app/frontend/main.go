@@ -19,6 +19,8 @@ import (
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
 	"github.com/hertz-contrib/pprof"
+	"github.com/hertz-contrib/sessions"
+	"github.com/hertz-contrib/sessions/redis"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -41,10 +43,22 @@ func main() {
 	h.LoadHTMLGlob("template/*")
 	h.Static("/static", "./")
 
+	// 为访问sign-in路径渲染新页面
+	h.GET("/sign-in", func(c context.Context, ctx *app.RequestContext) {
+		data := utils.H{
+			"title": "Sign In",
+		}
+		ctx.HTML(consts.StatusOK, "sign-in", data)
+	})
+
 	h.Spin()
 }
 
 func registerMiddleware(h *server.Hertz) {
+	// 注册session redis组件到中间层
+	store, _ := redis.NewStore(10, "tcp", conf.GetConf().Redis.Address, conf.GetConf().Redis.Username, []byte(conf.GetConf().Redis.Password))
+	h.Use(sessions.New("cloudwego-shop", store))
+
 	// log
 	logger := hertzlogrus.NewLogger()
 	hlog.SetLogger(logger)
