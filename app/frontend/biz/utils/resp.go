@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/hertz-contrib/sessions"
 )
 
 // SendErrResponse  pack error response
@@ -20,6 +21,11 @@ func SendSuccessResponse(ctx context.Context, c *app.RequestContext, code int, d
 
 // 提取user_id
 func WarpResponse(ctx context.Context, c *app.RequestContext, content map[string]any) map[string]any {
-	content["user_id"] = 222
+	session := sessions.Default(c)
+
+	userId := session.Get("user_id")
+
+	content["user_id"] = userId
+
 	return content
 }

@@ -10,29 +10,28 @@ import (
 	"github.com/hertz-contrib/sessions"
 )
 
-type LoginService struct {
+type RegisterService struct {
 	RequestContext *app.RequestContext
 	Context        context.Context
 }
 
-func NewLoginService(Context context.Context, RequestContext *app.RequestContext) *LoginService {
-	return &LoginService{RequestContext: RequestContext, Context: Context}
+func NewRegisterService(Context context.Context, RequestContext *app.RequestContext) *RegisterService {
+	return &RegisterService{RequestContext: RequestContext, Context: Context}
 }
 
-func (h *LoginService) Run(req *auth.LoginReq) (resp *common.Empty, err error) {
+func (h *RegisterService) Run(req *auth.RegisterReq) (resp *common.Empty, err error) {
 	//defer func() {
 	// hlog.CtxInfof(h.Context, "req = %+v", req)
 	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
 	// todo edit your code
-
 	session := sessions.Default(h.RequestContext)
 
 	session.Set("user_id", 1)
 
 	err = session.Save()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 		return nil, err
 	}
 	return

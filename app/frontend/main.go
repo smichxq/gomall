@@ -51,12 +51,24 @@ func main() {
 		ctx.HTML(consts.StatusOK, "sign-in", data)
 	})
 
+	// 为访问sign-up渲染页面
+	h.GET("/sign-up", func(c context.Context, ctx *app.RequestContext) {
+		data := utils.H{
+			"title": "Sign In",
+		}
+		ctx.HTML(consts.StatusOK, "sign-up", data)
+	})
+
 	h.Spin()
 }
 
 func registerMiddleware(h *server.Hertz) {
 	// 注册session redis组件到中间层
-	store, _ := redis.NewStore(10, "tcp", conf.GetConf().Redis.Address, conf.GetConf().Redis.Username, []byte(conf.GetConf().Redis.Password))
+	store, err := redis.NewStore(10, "tcp", conf.GetConf().Redis.Address, conf.GetConf().Redis.Password, []byte("secret"))
+	if err != nil {
+		panic(err)
+	}
+
 	h.Use(sessions.New("cloudwego-shop", store))
 
 	// log
