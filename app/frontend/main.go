@@ -49,7 +49,7 @@ func main() {
 		data := utils.H{
 			"title": "Sign In",
 			// 保留上一层页面路径并渲染给sign-in
-			"next": ctx.Request.Header.Get("Referer"),
+			"next": ctx.Query("next"),
 		}
 		ctx.HTML(consts.StatusOK, "sign-in", data)
 	})
@@ -62,7 +62,7 @@ func main() {
 		ctx.HTML(consts.StatusOK, "sign-up", data)
 	})
 
-	h.GET("/about", middleware.Auth(), func(c context.Context, ctx *app.RequestContext) {
+	h.GET("/about", func(c context.Context, ctx *app.RequestContext) {
 		ctx.HTML(consts.StatusOK, "about", utils.H{"Title": "About"})
 	})
 
