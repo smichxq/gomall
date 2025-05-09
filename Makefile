@@ -68,7 +68,12 @@ gen-frontend-home:
 gen-frontend-auth-page:
 	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/auth_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
 
-
+# 热重载
 .PYTHON: hot-reload-run-forntend
 hot-reload-run-forntend:
 	@cd app/frontend && air
+
+# 生成user客户端(idl)代码到rpc_gen文件夹下方便复用
+.PYTHON: gen-user-rpc-client
+gen-user-rpc-client:
+	@ cd rpc_gen && cwgo client --type RPC --service user --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/user.proto && go work use . && go mod tidy
