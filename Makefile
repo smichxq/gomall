@@ -67,3 +67,9 @@ gen-frontend-home:
 .PYTHON: gen-frontend-auth-page
 gen-frontend-auth-page:
 	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/auth_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
+
+
+
+.PYTHON: hot-reload-run-forntend
+hot-reload-run-forntend:
+	@cd app/frontend && air
