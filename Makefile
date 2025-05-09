@@ -77,3 +77,12 @@ hot-reload-run-forntend:
 .PYTHON: gen-user-rpc-client
 gen-user-rpc-client:
 	@ cd rpc_gen && cwgo client --type RPC --service user --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/user.proto && go work use . && go mod tidy
+
+# 生成user服务端(idl)代码到rpc_gen文件夹下方便复用
+# --pass 向底层工具（hz 或 Kitex）传递额外的参数
+# -use 配置kitex 不生成 kitex_gen 目录并使用指定的目录
+# 生成完毕后目录依赖-use会去远程查找
+# 请手动新增replace github.com/cloudwego/gomall/rpc_gen => ../../rpc_gen到app/user/go.mod 文件并刷新依赖
+.PYTHON: gen-user-rpc-server
+gen-user-rpc-server:
+	@ cd app/user && cwgo server --type RPC --service user --module github.com/cloudwego/gomall/app/user --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/user.proto && go work use . && go mod tidy
