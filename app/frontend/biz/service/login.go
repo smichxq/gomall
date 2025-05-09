@@ -5,7 +5,6 @@ import (
 	"log"
 
 	auth "github.com/cloudwego/gomall/app/frontend/hertz_gen/frontend/auth"
-	common "github.com/cloudwego/gomall/app/frontend/hertz_gen/frontend/common"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/sessions"
 )
@@ -19,7 +18,7 @@ func NewLoginService(Context context.Context, RequestContext *app.RequestContext
 	return &LoginService{RequestContext: RequestContext, Context: Context}
 }
 
-func (h *LoginService) Run(req *auth.LoginReq) (resp *common.Empty, err error) {
+func (h *LoginService) Run(req *auth.LoginReq) (redirect string, err error) {
 	//defer func() {
 	// hlog.CtxInfof(h.Context, "req = %+v", req)
 	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
@@ -33,7 +32,14 @@ func (h *LoginService) Run(req *auth.LoginReq) (resp *common.Empty, err error) {
 	err = session.Save()
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		return "", err
 	}
-	return
+
+	// 如果存在Next则返回重定向的路径
+	redirect = "/"
+	if req.Next != "" {
+		redirect = req.Next
+	}
+
+	return redirect, nil
 }
