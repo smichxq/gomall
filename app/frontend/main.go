@@ -8,6 +8,7 @@ import (
 
 	"github.com/cloudwego/gomall/app/frontend/biz/router"
 	"github.com/cloudwego/gomall/app/frontend/conf"
+	"github.com/cloudwego/gomall/app/frontend/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -111,4 +112,7 @@ func registerMiddleware(h *server.Hertz) {
 
 	// cores
 	h.Use(cors.Default())
+
+	// 注册鉴权中间件
+	middleware.Register(h)
 }
