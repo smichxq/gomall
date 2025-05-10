@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cloudwego/biz-demo/gomall/demo/demo_proto/biz/model"
+	"github.com/cloudwego/gomall/app/user/biz/dal/mysql"
+	"github.com/cloudwego/gomall/app/user/biz/model"
 	user "github.com/cloudwego/gomall/rpc_gen/kitex_gen/user"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,8 +34,14 @@ func (s *RegisterService) Run(req *user.RegisterReq) (resp *user.RegisterResp, e
 
 	// 实例化
 	newUser := &model.User{
-		Email:    req.Email,
-		PassWord: string(passwdHashed),
+		Email:          req.Email,
+		PasswordHashed: string(passwdHashed),
+	}
+
+	// 插入数据库
+	err = model.Create(mysql.DB, newUser)
+	if err != nil {
+		return nil, err
 	}
 
 	// 返回id
