@@ -4,10 +4,13 @@ package main
 
 import (
 	"context"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/cloudwego/gomall/app/frontend/biz/router"
 	"github.com/cloudwego/gomall/app/frontend/conf"
+	"github.com/cloudwego/gomall/app/frontend/infra/rpc"
 	"github.com/cloudwego/gomall/app/frontend/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
@@ -29,6 +32,8 @@ import (
 func main() {
 	// init dal
 	// dal.Init()
+	rpc.Init()
+
 	address := conf.GetConf().Hertz.Address
 	h := server.New(server.WithHostPorts(address))
 
@@ -65,6 +70,9 @@ func main() {
 	h.GET("/about", func(c context.Context, ctx *app.RequestContext) {
 		ctx.HTML(consts.StatusOK, "about", utils.H{"Title": "About"})
 	})
+
+	// 健康检查
+	go StartHealthCheckServer(":8898")
 
 	h.Spin()
 }
@@ -119,4 +127,17 @@ func registerMiddleware(h *server.Hertz) {
 
 	// 注册鉴权中间件
 	middleware.Register(h)
+}
+
+// 健康监测接口
+func StartHealthCheckServer(addr string) {
+	go func() {
+		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
+		if err := http.ListenAndServe(addr, nil); err != nil {
+			log.Fatalf("health check server error: %v", err)
+		}
+	}()
 }
