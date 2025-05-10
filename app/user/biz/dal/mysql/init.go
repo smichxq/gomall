@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudwego/gomall/app/user/biz/model"
 	"github.com/cloudwego/gomall/app/user/conf"
 
 	"gorm.io/driver/mysql"
@@ -52,7 +51,7 @@ func Init() {
 	}
 
 	// 自动迁移
-	DB.AutoMigrate(&model.User{})
+	// DB.AutoMigrate(&model.User{})
 
 	fmt.Println(v)
 }
