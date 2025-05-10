@@ -86,3 +86,26 @@ gen-user-rpc-client:
 .PYTHON: gen-user-rpc-server
 gen-user-rpc-server:
 	@ cd app/user && cwgo server --type RPC --service user --module github.com/cloudwego/gomall/app/user --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/user.proto && go work use . && go mod tidy
+
+
+# 热重载
+.PYTHON: hot-reload-run-user
+hot-reload-run-user:
+	@cd app/user && air
+
+
+
+# 简化从环境变量加载MySQL配置
+# 仅用于开发
+# 测试环境使用docker或其他安全的方式
+# 环境变量是临时的且仅用于启动命令
+.PHONY: app-user-server-boot-start
+app-user-server-boot-start:
+	@echo "Load config from env"
+	@cd app/user && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=user \
+	air
