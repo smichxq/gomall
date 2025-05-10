@@ -3,8 +3,10 @@ package main
 import (
 	"log"
 	"net"
+	"net/http"
 	"time"
 
+	"github.com/cloudwego/gomall/app/user/biz/dal"
 	"github.com/cloudwego/gomall/app/user/conf"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -20,6 +22,9 @@ import (
 func main() {
 	opts := kitexInit()
 
+	// 健康检查
+	go StartHealthCheckServer(":8899")
+
 	svr := userservice.NewServer(new(UserServiceImpl), opts...)
 
 	err := svr.Run()
@@ -29,6 +34,9 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	// 加载外部配置
+	dal.Init()
+
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
 	if err != nil {
@@ -76,4 +84,17 @@ func kitexInit() (opts []server.Option) {
 		asyncWriter.Sync()
 	})
 	return
+}
+
+// 健康监测接口
+func StartHealthCheckServer(addr string) {
+	go func() {
+		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
+		if err := http.ListenAndServe(addr, nil); err != nil {
+			log.Fatalf("health check server error: %v", err)
+		}
+	}()
 }
