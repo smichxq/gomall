@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -8,7 +12,7 @@ type User struct {
 	PasswordHashed string `grom:"type:varchar(255);not null"`
 }
 
-// 设置表名
+// 迁移时指定表名
 func (User) TableName() string {
 	return "user"
 }
@@ -16,4 +20,15 @@ func (User) TableName() string {
 // CRUD
 func Create(db *gorm.DB, user *User) error {
 	return db.Create(user).Error
+}
+
+// CRUD
+func SelectByEmail(db *gorm.DB, email string) (*User, error) {
+	var user User
+
+	fmt.Println(email)
+
+	err := db.Where("email = ?", email).First(&user).Error
+
+	return &user, err
 }
