@@ -20,9 +20,10 @@ var (
 type Config struct {
 	Env string
 
-	Hertz Hertz `yaml:"hertz"`
-	MySQL MySQL `yaml:"mysql"`
-	Redis Redis `yaml:"redis"`
+	Hertz    Hertz    `yaml:"hertz"`
+	MySQL    MySQL    `yaml:"mysql"`
+	Redis    Redis    `yaml:"redis"`
+	Registry Registry `yaml:"registry"`
 }
 
 type MySQL struct {
@@ -34,6 +35,12 @@ type Redis struct {
 	Password string `yaml:"password"`
 	Username string `yaml:"username"`
 	DB       int    `yaml:"db"`
+}
+
+type Registry struct {
+	RegistryAddress []string `yaml:"registry_address"`
+	Username        string   `yaml:"username"`
+	Password        string   `yaml:"password"`
 }
 
 type Hertz struct {
