@@ -109,3 +109,34 @@ app-user-server-boot-start:
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=user \
 	air
+
+
+# 生成product客户端(idl)代码到rpc_gen文件夹下方便复用
+.PYTHON: gen-product-rpc-client
+gen-product-rpc-client:
+	@ cd rpc_gen && cwgo client --type RPC --service product --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/product.proto && go work use . && go mod tidy
+
+# 生成user服务端(idl)代码到rpc_gen文件夹下方便复用
+# --pass 向底层工具（hz 或 Kitex）传递额外的参数
+# -use 配置kitex 不生成 kitex_gen 目录并使用指定的目录
+# 生成完毕后目录依赖-use会去远程查找
+# 请手动新增replace github.com/cloudwego/gomall/rpc_gen => ../../rpc_gen到app/product/go.mod 文件并刷新依赖
+.PYTHON: gen-product-rpc-server
+gen-product-rpc-server:
+	@ cd app/product && cwgo server --type RPC --service product --module github.com/cloudwego/gomall/app/product --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/product.proto && go work use . && go mod tidy
+
+
+# 简化从环境变量加载MySQL配置
+# 仅用于开发
+# 测试环境使用docker或其他安全的方式
+# 环境变量是临时的且仅用于启动命令
+.PHONY: app-product-server-boot-start
+app-product-server-boot-start:
+	@echo "Load config from env"
+	@cd app/product && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=user \
+	air
