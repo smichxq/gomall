@@ -73,6 +73,7 @@ gen-frontend-auth-page:
 hot-reload-run-forntend:
 	@cd app/frontend && air
 
+
 # 生成user客户端(idl)代码到rpc_gen文件夹下方便复用
 .PYTHON: gen-user-rpc-client
 gen-user-rpc-client:
