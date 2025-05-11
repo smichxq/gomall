@@ -4,12 +4,13 @@ import (
 	"net"
 	"time"
 
+	"github.com/cloudwego/gomall/app/product/biz/dal"
+	"github.com/cloudwego/gomall/app/product/conf"
+	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product/productcatalogservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	"github.com/cloudwego/gomall/app/product/conf"
-	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product/productcatalogservice"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -26,6 +27,9 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	// 加载数据库
+	dal.Init()
+
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
 	if err != nil {
