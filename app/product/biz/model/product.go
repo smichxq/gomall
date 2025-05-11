@@ -7,7 +7,7 @@ import (
 )
 
 type Product struct {
-	Base        Base
+	Base
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Picture     string  `json:"picture"`
