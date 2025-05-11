@@ -30,3 +30,10 @@ func (c CategoryQuery) GetProductsByCategoryName(name string) (categories []Cate
 
 	return
 }
+
+func NewCategoryQuery(ctx context.Context, db *gorm.DB) *CategoryQuery {
+	return &CategoryQuery{
+		ctx: ctx,
+		db:  db,
+	}
+}

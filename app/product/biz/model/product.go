@@ -46,3 +46,10 @@ func (query ProductQuery) SearchProducts(q string) (products []*Product, err err
 
 	return
 }
+
+func NewProductQuery(ctx context.Context, db *gorm.DB) *ProductQuery {
+	return &ProductQuery{
+		ctx: ctx,
+		db:  db,
+	}
+}
