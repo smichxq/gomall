@@ -140,3 +140,14 @@ app-product-server-boot-start:
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=product \
 	air
+
+
+# 根据IDL生成category_page对应的代码
+.PYTHON: gen-frontend-acategory-page
+gen-frontend-acategory-page:
+	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/category_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
+
+# 根据IDL生成product_page对应的代码
+.PYTHON: gen-frontend-product-page
+gen-frontend-product-page:
+	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/product_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
