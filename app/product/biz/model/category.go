@@ -26,7 +26,7 @@ func (c Category) TableName() string {
 
 func (c CategoryQuery) GetProductsByCategoryName(name string) (categories []Category, err error) {
 	// Preload自动关联Products中符合Category查询的结果
-	err = c.db.WithContext(c.ctx).Model(&Category{}).Where("nema = ?", name).Preload("Products").Find(&categories).Error
+	err = c.db.WithContext(c.ctx).Model(&Category{}).Where("name = ?", name).Preload("Products").Find(&categories).Error
 
 	return
 }
