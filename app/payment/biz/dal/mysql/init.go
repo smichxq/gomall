@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cloudwego/gomall/app/payment/biz/model"
 	"github.com/cloudwego/gomall/app/payment/conf"
 
 	"gorm.io/driver/mysql"
@@ -97,5 +98,25 @@ func InitUnitTest() {
 }
 
 func migrate() {
-	panic("impl")
+	// panic("impl")
+	if os.Getenv("GO_ENV") != "online" {
+		// 检查数据库中是否已存在表
+		needDemoData := !DB.Migrator().HasTable(&model.PaymentLog{})
+
+		// 自动迁移数据库表结构
+		// 根据模型定义创建或更新表结构
+		// 如果存在则尝试添加缺失字段、索引等，但不会删除字段或索引
+		// 多个模型可以一次性迁移
+		// 也会创建关联表
+		err := DB.AutoMigrate(
+			&model.PaymentLog{},
+		)
+		if err != nil {
+			panic("migrate fail")
+		}
+
+		if needDemoData {
+		}
+
+	}
 }
