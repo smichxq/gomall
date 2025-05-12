@@ -8,6 +8,7 @@ import (
 
 	"github.com/cloudwego/gomall/app/cart/biz/dal"
 	"github.com/cloudwego/gomall/app/cart/conf"
+	"github.com/cloudwego/gomall/app/cart/infra/rpc"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/cart/cartservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -35,6 +36,9 @@ func main() {
 
 func kitexInit() (opts []server.Option) {
 	dal.Init()
+
+	// 初始化rpc客户端
+	rpc.InitClient()
 
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
