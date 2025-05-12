@@ -30,3 +30,12 @@ func initProductClient() {
 	ProductClient, err = productcatalogservice.NewClient("product", opts...)
 	cartutils.MustHandleError(err)
 }
+
+func InitClientUnitTest(registryAddr string) {
+	var opts []client.Option
+	r, err := consul.NewConsulResolver(registryAddr)
+	cartutils.MustHandleError(err)
+	opts = append(opts, client.WithResolver(r))
+	ProductClient, err = productcatalogservice.NewClient("product", opts...)
+	cartutils.MustHandleError(err)
+}
