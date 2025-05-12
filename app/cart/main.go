@@ -24,7 +24,7 @@ func main() {
 	opts := kitexInit()
 
 	// 健康检查
-	go StartHealthCheckServer(":8896")
+	go StartHealthCheckServer(":8895")
 
 	svr := cartservice.NewServer(new(CartServiceImpl), opts...)
 
@@ -54,7 +54,7 @@ func kitexInit() (opts []server.Option) {
 
 	// 读取配置文件中的注册中心地址(单节点)
 	r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0], consul.WithCheck(&consulapi.AgentServiceCheck{
-		HTTP:                           "http://192.168.3.6:8896/health",
+		HTTP:                           "http://192.168.3.6:8895/health",
 		Interval:                       "1s",
 		Timeout:                        "1s",
 		DeregisterCriticalServiceAfter: "1m",
