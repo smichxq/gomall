@@ -205,3 +205,16 @@ gen-payment-rpc-client:
 .PYTHON: gen-payment-rpc-server
 gen-payment-rpc-server:
 	@ cd app/payment && cwgo server --type RPC --service payment --module github.com/cloudwego/gomall/app/payment --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/payment.proto && go work use . && go mod tidy
+
+
+
+.PHONY: app-payment-server-boot-start
+app-payment-server-boot-start:
+	@echo "Load config from env"
+	@cd app/payment && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=payment \
+	air
