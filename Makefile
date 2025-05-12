@@ -176,3 +176,15 @@ gen-cart-rpc-server:
 .PYTHON: gen-frontend-cart-page
 gen-frontend-cart-page:
 	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/cart_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
+
+
+.PHONY: app-cart-server-boot-start
+app-cart-server-boot-start:
+	@echo "Load config from env"
+	@cd app/cart && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=cart \
+	air
