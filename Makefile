@@ -188,3 +188,20 @@ app-cart-server-boot-start:
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=cart \
 	air
+
+
+
+
+# 生成payment客户端(idl)代码到rpc_gen文件夹下方便复用
+.PYTHON: gen-payment-rpc-client
+gen-payment-rpc-client:
+	@ cd rpc_gen && cwgo client --type RPC --service payment --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/payment.proto && go work use . && go mod tidy
+
+# 生成user服务端(idl)代码到rpc_gen文件夹下方便复用
+# --pass 向底层工具（hz 或 Kitex）传递额外的参数
+# -use 配置kitex 不生成 kitex_gen 目录并使用指定的目录
+# 生成完毕后目录依赖-use会去远程查找
+# 请手动新增replace github.com/cloudwego/gomall/rpc_gen => ../../rpc_gen到app/payment/go.mod 文件并刷新依赖
+.PYTHON: gen-payment-rpc-server
+gen-payment-rpc-server:
+	@ cd app/payment && cwgo server --type RPC --service payment --module github.com/cloudwego/gomall/app/payment --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/payment.proto && go work use . && go mod tidy
