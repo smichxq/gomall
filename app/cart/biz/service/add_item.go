@@ -23,7 +23,7 @@ func (s *AddItemService) Run(req *cart.AddItemReq) (resp *cart.AddItemResp, err 
 	// Finish your business logic.
 
 	// 调用product服务获取商品信息
-	respp, err := rpc.ProductClient.GetProduct(s.ctx, &product.GetProductReq{Id: req.UserId})
+	respp, err := rpc.ProductClient.GetProduct(s.ctx, &product.GetProductReq{Id: req.Item.ProductId})
 	if err != nil {
 		return nil, err
 	}
