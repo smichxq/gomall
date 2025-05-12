@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cloudwego/gomall/app/cart/biz/model"
 	"github.com/cloudwego/gomall/app/cart/conf"
 
 	"gorm.io/driver/mysql"
@@ -97,5 +98,10 @@ func InitUnitTest() {
 }
 
 func migrate() {
-	panic("unimplemented")
+	if os.Getenv("GO_ENV") != "online" {
+		err = DB.AutoMigrate(&model.Cart{})
+		if err != nil {
+			panic(err)
+		}
+	}
 }
