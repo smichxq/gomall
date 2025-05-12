@@ -3,6 +3,7 @@ go 1.24.2
 use (
 	./app/cart
 	./app/frontend
+	./app/payment
 	./app/product
 	./app/user
 	./demo/demo_proto
