@@ -1,2 +1,6 @@
+github.com/durango/go-credit-card v0.0.0-20220404131259-a9e175ba4082 h1:3RgcPZrUWhrxqhtDkuRmDTRVXGkxrVMZtJMic7cEtGA=
+github.com/durango/go-credit-card v0.0.0-20220404131259-a9e175ba4082/go.mod h1:jKPLGXGRR3v90kZOLs/kUMffoEot8IrRDGmmzI3kOtg=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
