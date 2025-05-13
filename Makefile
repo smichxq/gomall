@@ -218,3 +218,20 @@ app-payment-server-boot-start:
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=payment \
 	air
+
+
+
+# 生成checkout客户端(idl)代码到rpc_gen文件夹下方便复用
+.PYTHON: gen-checkout-rpc-client
+gen-checkout-rpc-client:
+	@ cd rpc_gen && cwgo client --type RPC --service checkout --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/checkout.proto && go work use . && go mod tidy
+
+# 生成checkout服务端(idl)代码到rpc_gen文件夹下方便复用
+# --pass 向底层工具（hz 或 Kitex）传递额外的参数
+# -use 配置kitex 不生成 kitex_gen 目录并使用指定的目录
+# 生成完毕后目录依赖-use会去远程查找
+# 请手动新增replace github.com/cloudwego/gomall/rpc_gen => ../../rpc_gen到app/checkout/go.mod 文件并刷新依赖
+.PYTHON: gen-checkout-rpc-server
+gen-checkout-rpc-server:
+	@ cd app/checkout && cwgo server --type RPC --service checkout --module github.com/cloudwego/gomall/app/checkout --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/checkout.proto && go work use . && go mod tidy
+
