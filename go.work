@@ -4,10 +4,12 @@ use (
 	./app/cart
 	./app/checkout
 	./app/frontend
+	./app/notify
 	./app/order
 	./app/payment
 	./app/product
 	./app/user
+	./common
 	./demo/demo_proto
 	./demo/demo_thrift
 	./rpc_gen

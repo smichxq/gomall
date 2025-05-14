@@ -293,12 +293,12 @@ app-order-server-boot-start:
 
 .PYTHON: gen-notify-rpc-client
 gen-notify-rpc-client:
-	@ cd rpc_gen && cwgo client --type RPC --service notify --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/notify.proto && go work use . && go mod tidy
+	@ cd rpc_gen && cwgo client --type RPC --service notify --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/email.proto && go work use . && go mod tidy
 
 
 .PYTHON: gen-notify-rpc-server
 gen-notify-rpc-server:
-	@ cd app/notify && cwgo server --type RPC --service order --module github.com/cloudwego/gomall/app/notify --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/notify.proto && go work use . && go mod tidy
+	@ cd app/notify && cwgo server --type RPC --service order --module github.com/cloudwego/gomall/app/notify --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/email.proto && go work use . && go mod tidy
 
 
 
