@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/gomall/app/cart/biz/dal"
@@ -21,15 +22,13 @@ import (
 )
 
 var (
-	ServiceName  = conf.GetConf().Kitex.Service
-	RegisterAddr = conf.GetConf().Registry.RegistryAddress[0]
+	ServiceName      = conf.GetConf().Kitex.Service
+	RegisterAddr     = conf.GetConf().Registry.RegistryAddress[0]
+	ConsulHealthAddr = conf.GetConf().Kitex.ConsulHealthAddr
 )
 
 func main() {
 	opts := kitexInit()
-
-	// 健康检查
-	go StartHealthCheckServer(":8895")
 
 	svr := cartservice.NewServer(new(CartServiceImpl), opts...)
 
@@ -56,10 +55,14 @@ func kitexInit() (opts []server.Option) {
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
 
+	// 健康检查
+	go StartHealthCheckServer(":" + strings.Split(ConsulHealthAddr, ":")[1])
+
 	// server suit
 	commonServerSuite := serversuite.CommonServerSuite{
 		CurrentServiceName: ServiceName,
 		RegistryAddr:       RegisterAddr,
+		ConsulHealthAddr:   ConsulHealthAddr,
 	}
 	opts = append(opts, server.WithSuite(commonServerSuite))
 

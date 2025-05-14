@@ -25,6 +25,7 @@ import (
 type CommonServerSuite struct {
 	CurrentServiceName string
 	RegistryAddr       string
+	ConsulHealthAddr   string
 }
 
 func (s CommonServerSuite) Options() []server.Option {
@@ -48,11 +49,12 @@ func (s CommonServerSuite) Options() []server.Option {
 
 	// 读取配置文件中的注册中心地址(单节点)
 	r, err := consul.NewConsulRegister(s.RegistryAddr, consul.WithCheck(&consulapi.AgentServiceCheck{
-		HTTP:                           "http://192.168.3.6:8895/health",
+		HTTP:                           "http://" + s.ConsulHealthAddr + "/health",
 		Interval:                       "1s",
 		Timeout:                        "1s",
-		DeregisterCriticalServiceAfter: "1m",
+		DeregisterCriticalServiceAfter: "1s",
 	}))
+	// r, err := consul.NewConsulRegister(s.RegistryAddr)
 	if err != nil {
 		log.Fatal("NewConsulRegister", err)
 	}
