@@ -4,12 +4,14 @@ import (
 	"net"
 	"time"
 
+	"github.com/cloudwego/gomall/app/notify/biz/consumer"
+	"github.com/cloudwego/gomall/app/notify/conf"
+	"github.com/cloudwego/gomall/app/notify/infra/mq"
+	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/email/emailservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	"github.com/cloudwego/gomall/app/notify/conf"
-	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/email/emailservice"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -26,6 +28,9 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	mq.Init()
+	consumer.Init()
+
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
 	if err != nil {
