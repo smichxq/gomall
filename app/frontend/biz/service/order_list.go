@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	common "github.com/cloudwego/gomall/app/frontend/hertz_gen/frontend/common"
@@ -69,6 +70,8 @@ func (h *OrderListService) Run(req *common.Empty) (resp map[string]any, err erro
 		})
 
 	}
+
+	fmt.Println(list)
 
 	return utils.H{
 		"title":  "Order",
