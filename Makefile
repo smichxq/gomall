@@ -235,3 +235,10 @@ gen-checkout-rpc-client:
 gen-checkout-rpc-server:
 	@ cd app/checkout && cwgo server --type RPC --service checkout --module github.com/cloudwego/gomall/app/checkout --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/checkout.proto && go work use . && go mod tidy
 
+
+
+
+# 根据IDL生成checkout_page对应的代码
+.PYTHON: gen-frontend-checkout-page
+gen-frontend-checkout-page:
+	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/checkout_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
