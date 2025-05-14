@@ -9,15 +9,20 @@ import (
 	"github.com/cloudwego/gomall/app/cart/biz/dal"
 	"github.com/cloudwego/gomall/app/cart/conf"
 	"github.com/cloudwego/gomall/app/cart/infra/rpc"
+	"github.com/cloudwego/gomall/common/mtl"
+	"github.com/cloudwego/gomall/common/serversuite"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/cart/cartservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	consulapi "github.com/hashicorp/consul/api"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	consul "github.com/kitex-contrib/registry-consul"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var (
+	ServiceName  = conf.GetConf().Kitex.Service
+	RegisterAddr = conf.GetConf().Registry.RegistryAddress[0]
 )
 
 func main() {
@@ -35,6 +40,10 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	// 初始化mtl
+	// dal与rpc依赖mtl
+	mtl.InitMetric(ServiceName, conf.GetConf().Kitex.MetricsPort, RegisterAddr)
+
 	dal.Init()
 
 	// 初始化rpc客户端
@@ -47,26 +56,17 @@ func kitexInit() (opts []server.Option) {
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
 
+	// server suit
+	commonServerSuite := serversuite.CommonServerSuite{
+		CurrentServiceName: ServiceName,
+		RegistryAddr:       RegisterAddr,
+	}
+	opts = append(opts, server.WithSuite(commonServerSuite))
+
 	// service info
 	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
-
-	// 读取配置文件中的注册中心地址(单节点)
-	r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0], consul.WithCheck(&consulapi.AgentServiceCheck{
-		HTTP:                           "http://192.168.3.6:8895/health",
-		Interval:                       "1s",
-		Timeout:                        "1s",
-		DeregisterCriticalServiceAfter: "1m",
-	}))
-	// r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0])
-	if err != nil {
-		log.Fatal("NewConsulRegister", err)
-		return
-	}
-
-	// 组件注册到服务
-	opts = append(opts, server.WithRegistry(r))
 
 	// klog
 	logger := kitexlogrus.NewLogger()
