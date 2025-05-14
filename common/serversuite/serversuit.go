@@ -9,17 +9,22 @@
 package serversuite
 
 import (
+	"log"
+
 	"github.com/cloudwego/gomall/common/mtl"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
+	consulapi "github.com/hashicorp/consul/api"
 
 	// Kitex 官方提供的 Prometheus 拦截器插件
 	prometheus "github.com/kitex-contrib/monitor-prometheus"
+	consul "github.com/kitex-contrib/registry-consul"
 )
 
 type CommonServerSuite struct {
 	CurrentServiceName string
+	RegistryAddr       string
 }
 
 func (s CommonServerSuite) Options() []server.Option {
@@ -40,6 +45,20 @@ func (s CommonServerSuite) Options() []server.Option {
 		),
 		),
 	}
+
+	// 读取配置文件中的注册中心地址(单节点)
+	r, err := consul.NewConsulRegister(s.RegistryAddr, consul.WithCheck(&consulapi.AgentServiceCheck{
+		HTTP:                           "http://192.168.3.6:8895/health",
+		Interval:                       "1s",
+		Timeout:                        "1s",
+		DeregisterCriticalServiceAfter: "1m",
+	}))
+	if err != nil {
+		log.Fatal("NewConsulRegister", err)
+	}
+
+	// 组件注册到服务
+	opts = append(opts, server.WithRegistry(r))
 
 	return opts
 }
