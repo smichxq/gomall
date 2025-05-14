@@ -254,3 +254,37 @@ app-checkout-server-boot-start:
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=payment \
 	air
+
+
+# 生成order客户端(idl)代码到rpc_gen文件夹下方便复用
+.PYTHON: gen-order-rpc-client
+gen-order-rpc-client:
+	@ cd rpc_gen && cwgo client --type RPC --service order --module github.com/cloudwego/gomall/rpc_gen --I ../idl --idl ../idl/order.proto && go work use . && go mod tidy
+
+# 生成checkout服务端(idl)代码到rpc_gen文件夹下方便复用
+# --pass 向底层工具（hz 或 Kitex）传递额外的参数
+# -use 配置kitex 不生成 kitex_gen 目录并使用指定的目录
+# 生成完毕后目录依赖-use会去远程查找
+# 请手动新增replace github.com/cloudwego/gomall/rpc_gen => ../../rpc_gen到app/checkout/go.mod 文件并刷新依赖
+.PYTHON: gen-order-rpc-server
+gen-order-rpc-server:
+	@ cd app/order && cwgo server --type RPC --service order --module github.com/cloudwego/gomall/app/order --pass "-use github.com/cloudwego/gomall/rpc_gen/kitex_gen" --I ../../idl --idl ../../idl/order.proto && go work use . && go mod tidy
+
+
+
+# 根据IDL生成cart_page对应的代码
+.PYTHON: gen-frontend-order-page
+gen-frontend-order-page:
+	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/order_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
+
+
+PHONY: app-order-server-boot-start
+app-order-server-boot-start:
+	@echo "Load config from env"
+	@cd app/order && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=orders \
+	air

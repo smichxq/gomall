@@ -3,7 +3,9 @@ package utils
 import (
 	"context"
 
+	"github.com/cloudwego/gomall/app/frontend/infra/rpc"
 	frontendUtils "github.com/cloudwego/gomall/app/frontend/utils"
+	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/cart"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -21,8 +23,17 @@ func SendSuccessResponse(ctx context.Context, c *app.RequestContext, code int, d
 
 // 提取user_id
 func WarpResponse(ctx context.Context, c *app.RequestContext, content map[string]any) map[string]any {
-	// 从中间件中获取userId
-	content["user_id"] = frontendUtils.GetUserIdFromCtx(ctx)
+	userId := frontendUtils.GetUserIdFromCtx(ctx)
+	content["user_id"] = userId
+
+	if userId > 0 {
+		cartResp, err := rpc.CartClient.GetCart(ctx, &cart.GetCartReq{
+			UserId: uint32(userId),
+		})
+		if err == nil && cartResp != nil {
+			content["cart_num"] = len(cartResp.Items)
+		}
+	}
 
 	return content
 }
