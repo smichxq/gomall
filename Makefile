@@ -242,3 +242,15 @@ gen-checkout-rpc-server:
 .PYTHON: gen-frontend-checkout-page
 gen-frontend-checkout-page:
 	@cd app/frontend && cwgo server --type HTTP --idl ../../idl/frontend/checkout_page.proto --service frontend -module github.com/cloudwego/gomall/app/frontend -I ../../idl && go work use . && go mod tidy
+
+
+PHONY: app-checkout-server-boot-start
+app-checkout-server-boot-start:
+	@echo "Load config from env"
+	@cd app/checkout && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=payment \
+	air
