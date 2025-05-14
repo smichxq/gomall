@@ -30,6 +30,7 @@ func InitMetric(serviceName, metricsPort, registryAddr string) {
 	Registry.MustRegister(collectors.NewGoCollector())
 	// 注册进程级别指标（CPU、文件描述符等）
 	Registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+
 	// consul注册
 	r, _ := consul.NewConsulRegister(registryAddr)
 	// metricsPort转为http地址
@@ -42,15 +43,15 @@ func InitMetric(serviceName, metricsPort, registryAddr string) {
 		Tags:        map[string]string{"service": serviceName},
 	}
 
-	// 通过 Consul 插件将 metrics 服务也注册到 Consul
+	// 通过 Consul 插件将 metrics 服务(即api为/metrics)也注册到 Consul
 	_ = r.Register(registryInfo)
 
-	// 关闭应用程序取消注册
+	// 关闭应用程序时取消注册
 	server.RegisterShutdownHook(func() {
 		r.Deregister(registryInfo)
 	})
 
-	http.Handle("metrics", promhttp.HandlerFor(Registry, promhttp.HandlerOpts{}))
+	http.Handle("/metrics", promhttp.HandlerFor(Registry, promhttp.HandlerOpts{}))
 	// 	启动metrics服务以供Prometheus拉取指标
 	go http.ListenAndServe(metricsPort, nil)
 }
