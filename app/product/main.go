@@ -4,27 +4,31 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/gomall/app/product/biz/dal"
 	"github.com/cloudwego/gomall/app/product/conf"
+	"github.com/cloudwego/gomall/common/mtl"
+	"github.com/cloudwego/gomall/common/serversuite"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product/productcatalogservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	consulapi "github.com/hashicorp/consul/api"
 
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	consul "github.com/kitex-contrib/registry-consul"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+var (
+	ServiceName      = conf.GetConf().Kitex.Service
+	RegisterAddr     = conf.GetConf().Registry.RegistryAddress[0]
+	ConsulHealthAddr = conf.GetConf().Kitex.ConsulHealthAddr
+)
+
 func main() {
 	opts := kitexInit()
-
-	// 健康检查
-	go StartHealthCheckServer(":8897")
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
 
@@ -35,6 +39,10 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	// 初始化mtl
+	// dal与rpc依赖mtl
+	mtl.InitMetric(ServiceName, conf.GetConf().Kitex.MetricsPort, RegisterAddr)
+
 	// 加载数据库
 	dal.Init()
 
@@ -50,22 +58,16 @@ func kitexInit() (opts []server.Option) {
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
 
-	// build a consul register with the consul client
-	// 读取配置文件中的注册中心地址(单节点)
-	r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0], consul.WithCheck(&consulapi.AgentServiceCheck{
-		HTTP:                           "http://192.168.3.6:8897/health",
-		Interval:                       "1s",
-		Timeout:                        "1s",
-		DeregisterCriticalServiceAfter: "1m",
-	}))
-	// r, err := consul.NewConsulRegister(conf.GetConf().Registry.RegistryAddress[0])
-	if err != nil {
-		log.Fatal("NewConsulRegister", err)
-		return
-	}
+	// 健康检查
+	go StartHealthCheckServer(":" + strings.Split(ConsulHealthAddr, ":")[1])
 
-	// 组件注册到服务
-	opts = append(opts, server.WithRegistry(r))
+	// server suit
+	commonServerSuite := serversuite.CommonServerSuite{
+		CurrentServiceName: ServiceName,
+		RegistryAddr:       RegisterAddr,
+		ConsulHealthAddr:   ConsulHealthAddr,
+	}
+	opts = append(opts, server.WithSuite(commonServerSuite))
 
 	// klog
 	logger := kitexlogrus.NewLogger()
