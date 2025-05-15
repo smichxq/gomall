@@ -25,9 +25,11 @@ import (
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
 	prometheus "github.com/hertz-contrib/monitor-prometheus"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
 	"github.com/hertz-contrib/sessions"
 	"github.com/hertz-contrib/sessions/redis"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -52,7 +54,12 @@ func main() {
 
 	rpc.Init()
 
-	// tracer, cfg := hertztracing.NewServerTracer()
+	// opentelemetry
+	tracer, cfg := hertztracing.NewServerTracer(
+		hertztracing.WithCustomResponseHandler(func(c context.Context, ctx *app.RequestContext) {
+			ctx.Header("shop-trace-id", oteltrace.SpanFromContext(c).SpanContext().TraceID().String())
+		}),
+	)
 
 	address := conf.GetConf().Hertz.Address
 	h := server.New(server.WithHostPorts(address),
@@ -64,10 +71,11 @@ func main() {
 			prometheus.WithRegistry(mtl.Registry),
 		)),
 		// 添加opentelemetry
-		// server.With(tracer),
+		tracer,
 	)
 
-	// h.Use(hertztracing.ServerMiddleware(cfg))
+	// opentelemetry
+	h.Use(hertztracing.ServerMiddleware(cfg))
 
 	registerMiddleware(h)
 

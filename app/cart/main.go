@@ -29,10 +29,19 @@ var (
 )
 
 func main() {
-	opts := kitexInit()
+	// 初始化mtl
+	// dal与rpc依赖mtl
+	mtl.InitMetric(ServiceName, conf.GetConf().Kitex.MetricsPort, RegisterAddr)
 
 	// 为了适配服务下线后结束上传指标
 	p := mtl.InitTracing(ServiceName)
+
+	dal.Init()
+
+	// 初始化rpc客户端
+	rpc.InitClient()
+
+	opts := kitexInit()
 
 	// 服务关闭前上传剩余链路数据
 	// opentelemetry链路数据分批上传
@@ -47,15 +56,6 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
-	// 初始化mtl
-	// dal与rpc依赖mtl
-	mtl.InitMetric(ServiceName, conf.GetConf().Kitex.MetricsPort, RegisterAddr)
-
-	dal.Init()
-
-	// 初始化rpc客户端
-	rpc.InitClient()
-
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
 	if err != nil {
