@@ -45,7 +45,14 @@ func main() {
 	// hertz取消注册的方式
 	defer consul.Deregister(registryInfo)
 
+	// hertz-opentelemetry集成
+	p := mtl.InitTracing(ServiceName)
+
+	defer p.Shutdown(context.Background())
+
 	rpc.Init()
+
+	// tracer, cfg := hertztracing.NewServerTracer()
 
 	address := conf.GetConf().Hertz.Address
 	h := server.New(server.WithHostPorts(address),
@@ -56,7 +63,11 @@ func main() {
 			prometheus.WithDisableServer(true),
 			prometheus.WithRegistry(mtl.Registry),
 		)),
+		// 添加opentelemetry
+		// server.With(tracer),
 	)
+
+	// h.Use(hertztracing.ServerMiddleware(cfg))
 
 	registerMiddleware(h)
 
