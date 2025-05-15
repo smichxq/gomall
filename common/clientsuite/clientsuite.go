@@ -6,6 +6,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/transport"
 
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	consul "github.com/kitex-contrib/registry-consul"
 )
 
@@ -24,6 +25,8 @@ func (s CommonClientSuite) Options() []client.Option {
 		client.WithMetaHandler(transmeta.ClientHTTP2Handler),
 		// 指定调用方使用 gRPC 作为传输协议
 		client.WithTransportProtocol(transport.GRPC),
+		// kitex-opentelemetry中间件
+		client.WithSuite(tracing.NewClientSuite()),
 	}
 
 	// 注册中心

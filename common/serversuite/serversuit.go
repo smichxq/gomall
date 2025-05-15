@@ -19,6 +19,7 @@ import (
 
 	// Kitex 官方提供的 Prometheus 拦截器插件
 	prometheus "github.com/kitex-contrib/monitor-prometheus"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	consul "github.com/kitex-contrib/registry-consul"
 )
 
@@ -43,8 +44,9 @@ func (s CommonServerSuite) Options() []server.Option {
 			// 关闭 Kitex 自带的服务端默认监控统计逻辑
 			prometheus.WithDisableServer(true),
 			prometheus.WithRegistry(mtl.Registry),
-		),
-		),
+		)),
+		// kitex-opentelemetry
+		server.WithSuite(tracing.NewServerSuite()),
 	}
 
 	// 读取配置文件中的注册中心地址(单节点)
