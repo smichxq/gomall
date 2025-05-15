@@ -73,8 +73,8 @@ gen-frontend-auth-page:
 hot-reload-run-forntend:
 	@cd app/frontend && air
 
-.PYTHON: app-forntend-server-boot-start
-app-forntend-server-boot-start:
+.PYTHON: app-frontend-server-boot-start
+app-frontend-server-boot-start:
 	@cd app/frontend && go run .
 
 
@@ -186,6 +186,18 @@ gen-frontend-cart-page:
 app-cart-server-boot-start:
 	@echo "Load config from env"
 	@cd app/cart && \
+	env MYSQL_USER=root \
+	    MYSQL_PASSWORD=123 \
+	    MYSQL_HOST=192.168.3.6 \
+	    MYSQL_PORT=3306 \
+	    MYSQL_DATABASE=cart \
+	go run .
+
+
+.PHONY: app-notify-server-boot-start
+app-notify-server-boot-start:
+	@echo "Load config from env"
+	@cd app/notify && \
 	env MYSQL_USER=root \
 	    MYSQL_PASSWORD=123 \
 	    MYSQL_HOST=192.168.3.6 \
