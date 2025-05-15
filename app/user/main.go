@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"net/http"
@@ -28,6 +29,12 @@ var (
 
 func main() {
 	opts := kitexInit()
+	// 为了适配服务下线后结束上传指标
+	p := mtl.InitTracing(ServiceName)
+
+	// 服务关闭前上传剩余链路数据
+	// opentelemetry链路数据分批上传
+	defer p.Shutdown(context.Background())
 
 	svr := userservice.NewServer(new(UserServiceImpl), opts...)
 
