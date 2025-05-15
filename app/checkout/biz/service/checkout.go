@@ -15,6 +15,8 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -108,6 +110,13 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		Subject: "email",
 		Data:    data,
 	}
+
+	// opentelemetry
+	// checkout ---{msg.Header}---> opentememetry
+	// checkout ---{msg}---> NATS -------> notify
+	// notify   ---{msg.Header}---> opentememetry
+	// 通过msg.Header形成链路
+	otel.GetTextMapPropagator().Inject(s.ctx, propagation.HeaderCarrier(msg.Header))
 
 	// 发送
 	_ = mq.Nc.PublishMsg(msg)
