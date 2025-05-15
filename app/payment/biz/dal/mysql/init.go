@@ -9,6 +9,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 var (
@@ -37,6 +38,10 @@ func Init() {
 		},
 	)
 	if err != nil {
+		panic(err)
+	}
+	// opentelemetry存储插件
+	if err := DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		panic(err)
 	}
 
