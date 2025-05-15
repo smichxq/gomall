@@ -73,6 +73,10 @@ gen-frontend-auth-page:
 hot-reload-run-forntend:
 	@cd app/frontend && air
 
+.PYTHON: app-forntend-server-boot-start
+app-forntend-server-boot-start:
+	@cd app/frontend && go run .
+
 
 # 生成user客户端(idl)代码到rpc_gen文件夹下方便复用
 .PYTHON: gen-user-rpc-client
@@ -109,7 +113,7 @@ app-user-server-boot-start:
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=user \
-	air
+	go run .
 
 
 # 生成product客户端(idl)代码到rpc_gen文件夹下方便复用
@@ -140,7 +144,7 @@ app-product-server-boot-start:
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=product \
-	air
+	go run .
 
 
 # 根据IDL生成category_page对应的代码
@@ -187,7 +191,7 @@ app-cart-server-boot-start:
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=cart \
-	air
+	go run .
 
 
 
@@ -217,7 +221,7 @@ app-payment-server-boot-start:
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=payment \
-	air
+	go run .
 
 
 
@@ -253,7 +257,7 @@ app-checkout-server-boot-start:
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=payment \
-	air
+	go run .
 
 
 # 生成order客户端(idl)代码到rpc_gen文件夹下方便复用
@@ -287,7 +291,7 @@ app-order-server-boot-start:
 	    MYSQL_HOST=192.168.3.6 \
 	    MYSQL_PORT=3306 \
 	    MYSQL_DATABASE=orders \
-	air
+	go run .
 
 
 

@@ -6,12 +6,14 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/gomall/app/frontend/biz/router"
 	"github.com/cloudwego/gomall/app/frontend/conf"
 	"github.com/cloudwego/gomall/app/frontend/infra/rpc"
 	"github.com/cloudwego/gomall/app/frontend/middleware"
+	"github.com/cloudwego/gomall/common/mtl"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -22,6 +24,7 @@ import (
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
+	prometheus "github.com/hertz-contrib/monitor-prometheus"
 	"github.com/hertz-contrib/pprof"
 	"github.com/hertz-contrib/sessions"
 	"github.com/hertz-contrib/sessions/redis"
@@ -29,13 +32,31 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+var (
+	ServiceName      = conf.GetConf().Hertz.Service
+	RegisterAddr     = conf.GetConf().Registry.RegistryAddress[0]
+	ConsulHealthAddr = conf.GetConf().Hertz.ConsulHealthAddr
+	MetricsPort      = conf.GetConf().Hertz.MetricsPort
+)
+
 func main() {
-	// init dal
-	// dal.Init()
+	consul, registryInfo := mtl.InitMetric(ServiceName, MetricsPort, RegisterAddr)
+
+	// hertz取消注册的方式
+	defer consul.Deregister(registryInfo)
+
 	rpc.Init()
 
 	address := conf.GetConf().Hertz.Address
-	h := server.New(server.WithHostPorts(address))
+	h := server.New(server.WithHostPorts(address),
+		// 添加promethus中间件到Hertz
+		server.WithTracer(prometheus.NewServerTracer(
+			"",
+			"",
+			prometheus.WithDisableServer(true),
+			prometheus.WithRegistry(mtl.Registry),
+		)),
+	)
 
 	registerMiddleware(h)
 
@@ -72,7 +93,7 @@ func main() {
 	})
 
 	// 健康检查
-	go StartHealthCheckServer(":8898")
+	go StartHealthCheckServer(":" + strings.Split(ConsulHealthAddr, ":")[1])
 
 	h.Spin()
 }

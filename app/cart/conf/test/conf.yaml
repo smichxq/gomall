@@ -6,7 +6,7 @@ kitex:
   log_max_size: 10
   log_max_age: 3
   log_max_backups: 50
-  metrics_port: ":9993"
+  metrics_port: ":9991"
   http_consul_health_addr: "192.168.3.6:8895"
 
 registry:

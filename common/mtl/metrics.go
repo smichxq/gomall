@@ -9,6 +9,7 @@
 package mtl
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 
@@ -22,7 +23,7 @@ import (
 
 var Registry *prometheus.Registry
 
-func InitMetric(serviceName, metricsPort, registryAddr string) {
+func InitMetric(serviceName, metricsPort, registryAddr string) (registry.Registry, *registry.Info) {
 	// 默认的 prometheus.DefaultRegisterer 会和全局指标冲突
 	// 这里使用独立的 Registry 避免干扰
 	Registry = prometheus.NewRegistry()
@@ -34,13 +35,16 @@ func InitMetric(serviceName, metricsPort, registryAddr string) {
 	// consul注册
 	r, _ := consul.NewConsulRegister(registryAddr)
 	// metricsPort转为http地址
-	addr, _ := net.ResolveTCPAddr("tcp", metricsPort)
+	addr, _ := net.ResolveTCPAddr("tcp", "192.168.3.6"+metricsPort)
+
+	fmt.Println("addr: ", addr)
 	// 构造注册信息
 	registryInfo := &registry.Info{
 		ServiceName: "prometheus",
 		Addr:        addr,
 		Weight:      1,
 		Tags:        map[string]string{"service": serviceName},
+		// SkipListenAddr: true,
 	}
 
 	// 通过 Consul 插件将 metrics 服务(即api为/metrics)也注册到 Consul
@@ -52,6 +56,10 @@ func InitMetric(serviceName, metricsPort, registryAddr string) {
 	})
 
 	http.Handle("/metrics", promhttp.HandlerFor(Registry, promhttp.HandlerOpts{}))
+
+	fmt.Println("metricsPort: ", metricsPort)
 	// 	启动metrics服务以供Prometheus拉取指标
 	go http.ListenAndServe(metricsPort, nil)
+
+	return r, registryInfo
 }
