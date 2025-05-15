@@ -10,6 +10,7 @@ import (
 
 	"github.com/cloudwego/gomall/app/checkout/biz/dal"
 	"github.com/cloudwego/gomall/app/checkout/conf"
+	"github.com/cloudwego/gomall/app/checkout/infra/mq"
 	"github.com/cloudwego/gomall/app/checkout/infra/rpc"
 	"github.com/cloudwego/gomall/common/mtl"
 	"github.com/cloudwego/gomall/common/serversuite"
@@ -53,6 +54,8 @@ func kitexInit() (opts []server.Option) {
 	dal.Init()
 
 	rpc.ClientInit()
+
+	mq.Init()
 
 	// address
 	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)

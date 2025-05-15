@@ -4,14 +4,18 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/cloudwego/gomall/app/checkout/infra/mq"
 	"github.com/cloudwego/gomall/app/checkout/infra/rpc"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/cart"
 	checkout "github.com/cloudwego/gomall/rpc_gen/kitex_gen/checkout"
+	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/email"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/payment"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/kerrors"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/google/uuid"
+	"github.com/nats-io/nats.go"
+	"google.golang.org/protobuf/proto"
 )
 
 type CheckoutService struct {
@@ -89,6 +93,24 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	if err != nil {
 		return nil, err
 	}
+
+	// 序列化信息
+	data, _ := proto.Marshal(&email.EmailReq{
+		From:        "from@example.com",
+		To:          req.Email,
+		ContentType: "text/plain",
+		Subject:     "Order subject",
+		Content:     "Order Conetne",
+	})
+
+	// 构造消息
+	msg := &nats.Msg{
+		Subject: "email",
+		Data:    data,
+	}
+
+	// 发送
+	_ = mq.Nc.PublishMsg(msg)
 
 	klog.Info(paymentResult)
 
