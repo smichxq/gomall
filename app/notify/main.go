@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/gomall/app/notify/biz/consumer"
 	"github.com/cloudwego/gomall/app/notify/conf"
 	"github.com/cloudwego/gomall/app/notify/infra/mq"
+	"github.com/cloudwego/gomall/common/serversuite"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/email/emailservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -14,6 +15,12 @@ import (
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+)
+
+var (
+	ServiceName      = conf.GetConf().Kitex.Service
+	RegisterAddr     = conf.GetConf().Registry.RegistryAddress[0]
+	ConsulHealthAddr = conf.GetConf().Kitex.ConsulHealthAddr
 )
 
 func main() {
@@ -38,6 +45,13 @@ func kitexInit() (opts []server.Option) {
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
 
+	// server suit
+	commonServerSuite := serversuite.CommonServerSuite{
+		CurrentServiceName: ServiceName,
+		RegistryAddr:       RegisterAddr,
+		ConsulHealthAddr:   ConsulHealthAddr,
+	}
+	opts = append(opts, server.WithSuite(commonServerSuite))
 	// service info
 	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 		ServiceName: conf.GetConf().Kitex.Service,
