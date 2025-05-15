@@ -18,6 +18,12 @@ var (
 	ServiceName  = conf.GetConf().Kitex.Service
 	RegisterAddr = conf.GetConf().Registry.RegistryAddress[0]
 	err          error
+	opts         = []client.Option{
+		client.WithSuite(clientsuite.CommonClientSuite{
+			CurrentServiceName: ServiceName,
+			RegistryAddr:       RegisterAddr,
+		}),
+	}
 )
 
 func InitClient() {
@@ -27,19 +33,11 @@ func InitClient() {
 }
 
 func initProductClient() {
-	opts := []client.Option{
-		client.WithSuite(clientsuite.CommonClientSuite{
-			CurrentServiceName: ServiceName,
-			RegistryAddr:       RegisterAddr,
-		}),
-	}
-
 	ProductClient, err = productcatalogservice.NewClient("product", opts...)
 	cartutils.MustHandleError(err)
 }
 
 func InitClientUnitTest(registryAddr string) {
-	var opts []client.Option
 	ProductClient, err = productcatalogservice.NewClient("product", opts...)
 	cartutils.MustHandleError(err)
 }
