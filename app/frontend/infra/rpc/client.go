@@ -12,6 +12,8 @@ import (
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product/productcatalogservice"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/client"
+	"github.com/cloudwego/kitex/pkg/circuitbreak"
+	"github.com/cloudwego/kitex/pkg/rpcinfo"
 )
 
 var (
@@ -50,6 +52,20 @@ func initUserClient() {
 }
 
 func initProductcatalogserviceClient() {
+	// 服务熔断
+	cbs := circuitbreak.NewCBSuite(func(ri rpcinfo.RPCInfo) string {
+		// "fromServiceName/ToServiceName/method"
+		return circuitbreak.RPCInfo2Key(ri)
+	})
+
+	// 规则
+	cbs.UpdateServiceCBConfig("frontend/product/GetProduct",
+		circuitbreak.CBConfig{Enable: true, ErrRate: 0.5, MinSample: 2},
+	)
+
+	// 熔断器注册
+	opts = append(opts, client.WithCircuitBreaker(cbs))
+
 	// 客户端从 Consul 获取服务实例列表已在clientsuite配置
 	// 使用对应的IDL客户端
 	ProductClient, err = productcatalogservice.NewClient("product", opts...)
