@@ -17,6 +17,8 @@ import (
 	"github.com/cloudwego/kitex/pkg/circuitbreak"
 	"github.com/cloudwego/kitex/pkg/fallback"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	consulclient "github.com/kitex-contrib/config-consul/client"
+	"github.com/kitex-contrib/config-consul/consul"
 )
 
 var (
@@ -118,6 +120,14 @@ func initProductcatalogserviceClient() {
 			}),
 		),
 	))
+
+	// 适用于client的配置中心
+	consulClient, err := consul.NewClient(consul.Options{
+		Addr: RegisterAddr,
+	})
+
+	// 注册到suite
+	opts = append(opts, client.WithSuite(consulclient.NewSuite("product", ServiceName, consulClient)))
 
 	// 客户端从 Consul 获取服务实例列表已在clientsuite配置
 	// 使用对应的IDL客户端
