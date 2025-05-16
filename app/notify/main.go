@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"net"
 	"time"
 
 	"github.com/cloudwego/gomall/app/notify/biz/consumer"
 	"github.com/cloudwego/gomall/app/notify/conf"
 	"github.com/cloudwego/gomall/app/notify/infra/mq"
+	"github.com/cloudwego/gomall/common/mtl"
 	"github.com/cloudwego/gomall/common/serversuite"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/email/emailservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -25,6 +27,12 @@ var (
 
 func main() {
 	opts := kitexInit()
+	// 为了适配服务下线后结束上传指标
+	p := mtl.InitTracing(ServiceName)
+
+	// 服务关闭前上传剩余链路数据
+	// opentelemetry链路数据分批上传
+	defer p.Shutdown(context.Background())
 
 	svr := emailservice.NewServer(new(EmailServiceImpl), opts...)
 
@@ -35,6 +43,10 @@ func main() {
 }
 
 func kitexInit() (opts []server.Option) {
+	// 初始化mtl
+	// dal与rpc依赖mtl
+	mtl.InitMetric(ServiceName, conf.GetConf().Kitex.MetricsPort, RegisterAddr)
+
 	mq.Init()
 	consumer.Init()
 
