@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"sync"
 
 	"github.com/cloudwego/gomall/app/frontend/conf"
@@ -9,10 +10,12 @@ import (
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/cart/cartservice"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/checkout/checkoutservice"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/order/orderservice"
+	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/product/productcatalogservice"
 	"github.com/cloudwego/gomall/rpc_gen/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/circuitbreak"
+	"github.com/cloudwego/kitex/pkg/fallback"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 )
 
@@ -65,6 +68,56 @@ func initProductcatalogserviceClient() {
 
 	// 熔断器注册
 	opts = append(opts, client.WithCircuitBreaker(cbs))
+
+	// 熔断降级注册
+	opts = append(opts, client.WithFallback(
+		fallback.NewFallbackPolicy(
+			fallback.UnwrapHelper(func(ctx context.Context, req, resp interface{}, err error) (fbResp interface{}, fbErr error) {
+				// 如果没有发生熔断
+				if err == nil {
+					return resp, nil
+				}
+
+				/* 发生熔断 */
+
+				// 根据当前rpc上下文获取熔断的rpc方法
+				methodName := rpcinfo.GetRPCInfo(ctx).To().Method()
+
+				// 如果方法不为当前测试的rpc方法
+				// 则直接放行
+				if methodName != "ListProducts" {
+					return resp, err
+				}
+
+				// 降级措施
+				return &product.ListProductsResp{
+					Products: []*product.Product{
+						{
+							Price:       "6.3",
+							Id:          3,
+							Picture:     "/static/image/t-shirt.jepg",
+							Name:        "1233",
+							Description: "test",
+						},
+						{
+							Price:       "6.9",
+							Id:          3,
+							Picture:     "/static/image/t-shirt.jepg",
+							Name:        "1233",
+							Description: "test",
+						},
+						{
+							Price:       "6.3",
+							Id:          3,
+							Picture:     "/static/image/t-shirt.jepg",
+							Name:        "1233",
+							Description: "test",
+						},
+					},
+				}, nil
+			}),
+		),
+	))
 
 	// 客户端从 Consul 获取服务实例列表已在clientsuite配置
 	// 使用对应的IDL客户端
