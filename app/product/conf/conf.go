@@ -90,6 +90,7 @@ func initConf() {
 	}
 
 	// 注册成功回调
+	// 更新配置回调
 	client.RegisterConfigCallback("product/test.yaml", consul.AllocateUniqueID(), func(s string, cp consul.ConfigParser) {
 		// 映射到conf
 		err = yaml.Unmarshal([]byte(s), &conf)
